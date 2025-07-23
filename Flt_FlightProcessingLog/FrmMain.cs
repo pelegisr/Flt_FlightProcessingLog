@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -22,65 +23,90 @@ namespace Flt_FlightProcessingLog
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            LoadLogLines(100, 0, "");
+            btnSearch_Click(sender, e);
         }
 
-        private void LoadLogLines(int top, int pnr, string identifier)
+        private void LoadLogLines(DateTime fromDate, DateTime toDate, int Fl_id, string identifier)
         {
             var es = Peleg.NaumTools.Utils.Sql2Entity(SqlConnectionString, "Data.Model");
 
             using (var ent = new Ent(es))
             {
-                var query = ent.FlightProcessingLogs.AsQueryable();
+                var baseQuery = ent.FlightProcessingLogs.AsQueryable();
 
-                // Filter by identifier if provided
+                // Filter by date range (date only, inclusive)
+                baseQuery = baseQuery.Where(l =>
+                    DbFunctions.TruncateTime(l.Timestamp) >= fromDate.Date &&
+                    DbFunctions.TruncateTime(l.Timestamp) <= toDate.Date);
+
+                var sessionIdQuery = baseQuery;
+
+                List<Guid?> matchingSessionIds = null;
+
+                // If identifier is provided, filter for messages with matching identifier
                 if (!string.IsNullOrWhiteSpace(identifier))
                 {
-                    query = query.Where(l => l.FlightIdentifier == identifier);
+                    sessionIdQuery = sessionIdQuery.Where(l => l.FlightIdentifier == identifier);
                 }
 
-                // If PNR is specified, find all related SessionIds
-                if (pnr > 0)
+                // If Fl_id is provided, further filter for messages containing the Fl_id
+                if (Fl_id > 0)
                 {
-                    string pnrStr = pnr.ToString();
+                    string Fl_idStr = Fl_id.ToString();
+                    sessionIdQuery = sessionIdQuery.Where(l => l.Message.Contains(Fl_idStr));
+                }
 
-                    // First: find sessionIds of log lines where Message contains the pnr
-                    var matchingSessionIds = query
-                        .Where(l => l.Message.Contains(pnrStr))
+                // If either identifier or Fl_id was provided, get matching SessionIds
+                if (!string.IsNullOrWhiteSpace(identifier) || Fl_id > 0)
+                {
+                    matchingSessionIds = sessionIdQuery
                         .Select(l => l.SessionId)
                         .Distinct()
                         .ToList();
 
-                    // If any matches found, filter the query to those SessionIds
-                    if (matchingSessionIds.Any())
+                    // If none found, return empty
+                    if (!matchingSessionIds.Any())
                     {
-                        query = query.Where(l => matchingSessionIds.Contains(l.SessionId));
-                    }
-                    else
-                    {
-                        // No matches, return empty list
                         egLogLines.DataSource = new List<FlightProcessingLog>();
                         return;
                     }
+
+                    // Filter main query to matching sessionIds
+                    baseQuery = baseQuery.Where(l => matchingSessionIds.Contains(l.SessionId));
                 }
 
-                // Apply ordering and take top N
-                var topLogLines = query
-                    .OrderByDescending(l => l.Id)
-                    .Take(top)
+                // Final ordering
+                var logLines = baseQuery
+                    .OrderBy(l => l.Id)
                     .ToList();
 
-                egLogLines.DataSource = topLogLines;
+                // Compute MinIdForSession for sorting/grouping
+                var logsWithMin = logLines
+                    .GroupBy(l => l.SessionId)
+                    .SelectMany(g =>
+                    {
+                        int minId = g.Min(x => x.Id);
+                        foreach (var log in g)
+                        {
+                            log.MinIdForSession = minId;
+                        }
+                        return g;
+                    })
+                    .ToList();
+
+                egLogLines.DataSource = logLines;
+                chkGroupBySession_CheckedChanged(logLines, EventArgs.Empty); // Reapply grouping if needed
             }
         }
 
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            int top = numericUpDown1.Value > 0 ? (int)numericUpDown1.Value : 100;
-            int pnr = txtPnr.Text.Length > 0 ? int.Parse(txtPnr.Text) : 0;
+            DateTime fromDate = (DateTime)udtFrom.Value;
+            DateTime toDate = (DateTime)udtTo.Value;
+            int FlId = txtFlId.Text.Length > 0 ? int.Parse(txtFlId.Text) : 0;
             string identifier = txtIdentifier.Text;
-            LoadLogLines(top, pnr, identifier);
+            LoadLogLines(fromDate, toDate, FlId, identifier);
         }
 
         private void egLogLines_InitializeLayout(object sender, Infragistics.Win.UltraWinGrid.InitializeLayoutEventArgs e)
@@ -110,11 +136,12 @@ namespace Flt_FlightProcessingLog
                 }
             }
             band.Columns["id"].Hidden = true;
+            band.Columns["MinIdForSession"].Hidden = true;
             band.Columns["FlightIdentifier"].Header.Caption = "Identifier";
             band.Columns["Timestamp"].Format = "dd/MM/yyyy HH:mm:ss";
         }
 
-        private void txtPnr_KeyDown(object sender, KeyEventArgs e)
+        private void txtFlId_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -134,17 +161,41 @@ namespace Flt_FlightProcessingLog
             }
         }
 
+        private void udtFrom_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearch_Click(sender, e);
+                e.Handled = true;
+                e.SuppressKeyPress = true; // Prevent "ding" sound
+            }
+        }
+
+        private void udtTo_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearch_Click(sender, e);
+                e.Handled = true;
+                e.SuppressKeyPress = true; // Prevent "ding" sound
+            }
+        }
+
         private void chkGroupBySession_CheckedChanged(object sender, EventArgs e)
         {
             var band = egLogLines.DisplayLayout.Bands[0];
 
+            band.SortedColumns.Clear();
+
             if (chkGroupBySession.Checked)
             {
-                // Add grouping by SessionId
-                band.SortedColumns.Add("SessionId", false, true);
-                // Then sort by Id ascending inside each group
-                band.SortedColumns.Add("Id", false, false);
+                // Group by SessionId
+                band.SortedColumns.Add("MinIdForSession", false, true);
 
+                // Sort rows inside each group by Id
+                band.SortedColumns.Add("Id", false, false);
+                
+                // Expand groups
                 foreach (UltraGridRow row in egLogLines.Rows)
                 {
                     if (row.IsGroupByRow) row.Expanded = true;
@@ -152,14 +203,21 @@ namespace Flt_FlightProcessingLog
             }
             else
             {
-                // Remove grouping by SessionId if exists
-                var groupByColumn = band.SortedColumns
-                    .OfType<UltraGridColumn>() // Corrected type to UltraGridColumn
-                    .FirstOrDefault(c => c.IsGroupByColumn && c.Key == "SessionId");
+                // Remove grouping and just sort by Id DESC
+                band.SortedColumns.Add("Id", false);
+                band.SortedColumns["Id"].SortIndicator = SortIndicator.Descending;
+            }
+        }
 
-                if (groupByColumn != null)
+        private void egLogLines_InitializeGroupByRow(object sender, InitializeGroupByRowEventArgs e)
+        {
+            if (e.Row.Column.Key == "MinIdForSession")
+            {
+                // Get one log row from the group
+                var log = e.Row.Rows.OfType<UltraGridRow>().FirstOrDefault()?.ListObject as FlightProcessingLog;
+                if (log != null)
                 {
-                    band.SortedColumns.Remove(groupByColumn);
+                    e.Row.Description = $"Session: {log.SessionId} {log.Timestamp}";
                 }
             }
         }
