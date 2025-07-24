@@ -26,7 +26,7 @@ namespace Flt_FlightProcessingLog
             btnSearch_Click(sender, e);
         }
 
-        private void LoadLogLines(DateTime fromDate, DateTime toDate, int Fl_id, string identifier)
+        private void LoadLogLines(DateTime? fromDate, DateTime? toDate, int Fl_id, string identifier)
         {
             var es = Peleg.NaumTools.Utils.Sql2Entity(SqlConnectionString, "Data.Model");
 
@@ -35,9 +35,19 @@ namespace Flt_FlightProcessingLog
                 var baseQuery = ent.FlightProcessingLogs.AsQueryable();
 
                 // Filter by date range (date only, inclusive)
-                baseQuery = baseQuery.Where(l =>
-                    DbFunctions.TruncateTime(l.Timestamp) >= fromDate.Date &&
-                    DbFunctions.TruncateTime(l.Timestamp) <= toDate.Date);
+                if (fromDate.HasValue)
+                {
+                    var from = fromDate.Value.Date;
+                    baseQuery = baseQuery.Where(l =>
+                        DbFunctions.TruncateTime(l.Timestamp) >= from);
+                }
+
+                if (toDate.HasValue)
+                {
+                    var to = toDate.Value.Date;
+                    baseQuery = baseQuery.Where(l =>
+                        DbFunctions.TruncateTime(l.Timestamp) <= to);
+                }
 
                 var sessionIdQuery = baseQuery;
 
@@ -102,8 +112,8 @@ namespace Flt_FlightProcessingLog
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            DateTime fromDate = (DateTime)udtFrom.Value;
-            DateTime toDate = (DateTime)udtTo.Value;
+            DateTime? fromDate = udtFrom.Value as DateTime?;
+            DateTime? toDate = udtTo.Value as DateTime?;
             int FlId = txtFlId.Text.Length > 0 ? int.Parse(txtFlId.Text) : 0;
             string identifier = txtIdentifier.Text;
             LoadLogLines(fromDate, toDate, FlId, identifier);
