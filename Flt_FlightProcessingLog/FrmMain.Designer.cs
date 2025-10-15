@@ -44,20 +44,25 @@
             this.uPanel1 = new Peleg.UPanelInfo.UPanel();
             this.egLogLines = new Peleg.CustomControls.ExtendedGrid(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblTo = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.udtFrom = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
             this.udtTo = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.chkGroupBySession = new System.Windows.Forms.CheckBox();
             this.btnSearch = new System.Windows.Forms.Button();
             this.lblIdentifier = new System.Windows.Forms.Label();
-            this.lblFlId = new System.Windows.Forms.Label();
             this.txtIdentifier = new System.Windows.Forms.TextBox();
-            this.txtFlId = new System.Windows.Forms.TextBox();
-            this.chkGroupBySession = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.udtFlightDate = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtFlt = new System.Windows.Forms.TextBox();
+            this.lblTo = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtNumber = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.egLogLines)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.udtFrom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtTo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).BeginInit();
             this.SuspendLayout();
             // 
             // uPanel1
@@ -138,12 +143,12 @@
             this.egLogLines.Dock = System.Windows.Forms.DockStyle.Fill;
             this.egLogLines.FilterDisableFields = null;
             this.egLogLines.FilterListFields = null;
-            this.egLogLines.Location = new System.Drawing.Point(0, 96);
+            this.egLogLines.Location = new System.Drawing.Point(0, 103);
             this.egLogLines.Name = "egLogLines";
             this.egLogLines.PrimeryFilter = null;
             this.egLogLines.SearchMode = Peleg.CustomControls.ExtendedGrid.SearchModeEnum.OnPatternChange;
             this.egLogLines.SearchStyle = Peleg.CustomControls.ExtendedGrid.SearchStyleEnum.AllWord;
-            this.egLogLines.Size = new System.Drawing.Size(800, 354);
+            this.egLogLines.Size = new System.Drawing.Size(800, 415);
             this.egLogLines.TabIndex = 1;
             this.egLogLines.Text = "egLogLines";
             this.egLogLines.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.egLogLines_InitializeLayout);
@@ -151,6 +156,12 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.txtNumber);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.txtFlt);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.udtFlightDate);
+            this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.lblTo);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.udtFrom);
@@ -158,54 +169,54 @@
             this.panel1.Controls.Add(this.chkGroupBySession);
             this.panel1.Controls.Add(this.btnSearch);
             this.panel1.Controls.Add(this.lblIdentifier);
-            this.panel1.Controls.Add(this.lblFlId);
             this.panel1.Controls.Add(this.txtIdentifier);
-            this.panel1.Controls.Add(this.txtFlId);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 52);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 44);
+            this.panel1.Size = new System.Drawing.Size(800, 51);
             this.panel1.TabIndex = 2;
-            // 
-            // lblTo
-            // 
-            this.lblTo.AutoSize = true;
-            this.lblTo.Location = new System.Drawing.Point(128, 16);
-            this.lblTo.Name = "lblTo";
-            this.lblTo.Size = new System.Drawing.Size(20, 13);
-            this.lblTo.TabIndex = 10;
-            this.lblTo.Text = "To";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 16);
+            this.label1.Location = new System.Drawing.Point(12, 6);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(30, 13);
+            this.label1.Size = new System.Drawing.Size(95, 13);
             this.label1.TabIndex = 9;
-            this.label1.Text = "From";
+            this.label1.Text = "Xml received date:";
             // 
             // udtFrom
             // 
-            this.udtFrom.Location = new System.Drawing.Point(39, 12);
+            this.udtFrom.Location = new System.Drawing.Point(12, 22);
             this.udtFrom.Name = "udtFrom";
             this.udtFrom.Size = new System.Drawing.Size(77, 21);
-            this.udtFrom.TabIndex = 8;
+            this.udtFrom.TabIndex = 1;
             this.udtFrom.KeyDown += new System.Windows.Forms.KeyEventHandler(this.udtFrom_KeyDown);
             // 
             // udtTo
             // 
-            this.udtTo.Location = new System.Drawing.Point(150, 12);
+            this.udtTo.Location = new System.Drawing.Point(105, 22);
             this.udtTo.Name = "udtTo";
             this.udtTo.Size = new System.Drawing.Size(71, 21);
-            this.udtTo.TabIndex = 7;
+            this.udtTo.TabIndex = 2;
+            // 
+            // chkGroupBySession
+            // 
+            this.chkGroupBySession.AutoSize = true;
+            this.chkGroupBySession.Location = new System.Drawing.Point(678, 23);
+            this.chkGroupBySession.Name = "chkGroupBySession";
+            this.chkGroupBySession.Size = new System.Drawing.Size(110, 17);
+            this.chkGroupBySession.TabIndex = 8;
+            this.chkGroupBySession.Text = "Group By Session";
+            this.chkGroupBySession.UseVisualStyleBackColor = true;
+            this.chkGroupBySession.CheckedChanged += new System.EventHandler(this.chkGroupBySession_CheckedChanged);
             // 
             // btnSearch
             // 
-            this.btnSearch.Location = new System.Drawing.Point(527, 11);
+            this.btnSearch.Location = new System.Drawing.Point(581, 21);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(88, 22);
-            this.btnSearch.TabIndex = 4;
+            this.btnSearch.TabIndex = 7;
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
@@ -213,53 +224,82 @@
             // lblIdentifier
             // 
             this.lblIdentifier.AutoSize = true;
-            this.lblIdentifier.Location = new System.Drawing.Point(233, 16);
+            this.lblIdentifier.Location = new System.Drawing.Point(460, 6);
             this.lblIdentifier.Name = "lblIdentifier";
             this.lblIdentifier.Size = new System.Drawing.Size(47, 13);
             this.lblIdentifier.TabIndex = 4;
             this.lblIdentifier.Text = "Identifier";
             // 
-            // lblFlId
-            // 
-            this.lblFlId.AutoSize = true;
-            this.lblFlId.Location = new System.Drawing.Point(382, 16);
-            this.lblFlId.Name = "lblFlId";
-            this.lblFlId.Size = new System.Drawing.Size(44, 13);
-            this.lblFlId.TabIndex = 3;
-            this.lblFlId.Text = "Flight Id";
-            // 
             // txtIdentifier
             // 
-            this.txtIdentifier.Location = new System.Drawing.Point(282, 12);
+            this.txtIdentifier.Location = new System.Drawing.Point(463, 23);
             this.txtIdentifier.Name = "txtIdentifier";
             this.txtIdentifier.Size = new System.Drawing.Size(88, 20);
-            this.txtIdentifier.TabIndex = 3;
+            this.txtIdentifier.TabIndex = 6;
             this.txtIdentifier.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtIdentifier_KeyDown);
             // 
-            // txtFlId
+            // label2
             // 
-            this.txtFlId.Location = new System.Drawing.Point(429, 12);
-            this.txtFlId.Name = "txtFlId";
-            this.txtFlId.Size = new System.Drawing.Size(88, 20);
-            this.txtFlId.TabIndex = 2;
-            this.txtFlId.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFlId_KeyDown);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(216, 6);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(58, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Flight Date";
             // 
-            // chkGroupBySession
+            // udtFlightDate
             // 
-            this.chkGroupBySession.AutoSize = true;
-            this.chkGroupBySession.Location = new System.Drawing.Point(621, 14);
-            this.chkGroupBySession.Name = "chkGroupBySession";
-            this.chkGroupBySession.Size = new System.Drawing.Size(110, 17);
-            this.chkGroupBySession.TabIndex = 6;
-            this.chkGroupBySession.Text = "Group By Session";
-            this.chkGroupBySession.UseVisualStyleBackColor = true;
-            this.chkGroupBySession.CheckedChanged += new System.EventHandler(this.chkGroupBySession_CheckedChanged);
+            this.udtFlightDate.Location = new System.Drawing.Point(219, 22);
+            this.udtFlightDate.Name = "udtFlightDate";
+            this.udtFlightDate.Size = new System.Drawing.Size(77, 21);
+            this.udtFlightDate.TabIndex = 3;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(331, 6);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(32, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Flight";
+            // 
+            // txtFlt
+            // 
+            this.txtFlt.Location = new System.Drawing.Point(334, 23);
+            this.txtFlt.Name = "txtFlt";
+            this.txtFlt.Size = new System.Drawing.Size(40, 20);
+            this.txtFlt.TabIndex = 4;
+            // 
+            // lblTo
+            // 
+            this.lblTo.AutoSize = true;
+            this.lblTo.Location = new System.Drawing.Point(92, 26);
+            this.lblTo.Name = "lblTo";
+            this.lblTo.Size = new System.Drawing.Size(10, 13);
+            this.lblTo.TabIndex = 10;
+            this.lblTo.Text = "-";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(377, 6);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(44, 13);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "Number";
+            // 
+            // txtNumber
+            // 
+            this.txtNumber.Location = new System.Drawing.Point(380, 23);
+            this.txtNumber.Name = "txtNumber";
+            this.txtNumber.Size = new System.Drawing.Size(40, 20);
+            this.txtNumber.TabIndex = 5;
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 518);
             this.Controls.Add(this.egLogLines);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.uPanel1);
@@ -271,6 +311,7 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.udtFrom)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtTo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -281,15 +322,19 @@
         private Peleg.CustomControls.ExtendedGrid egLogLines;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox txtIdentifier;
-        private System.Windows.Forms.TextBox txtFlId;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Label lblIdentifier;
-        private System.Windows.Forms.Label lblFlId;
         private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor udtTo;
         private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor udtFrom;
-        private System.Windows.Forms.Label lblTo;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox chkGroupBySession;
+        private System.Windows.Forms.TextBox txtFlt;
+        private System.Windows.Forms.Label label3;
+        private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor udtFlightDate;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblTo;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtNumber;
     }
 }
 

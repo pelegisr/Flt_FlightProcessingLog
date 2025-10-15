@@ -23,10 +23,11 @@ namespace Flt_FlightProcessingLog
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
+            udtFlightDate.Value = null;
             btnSearch_Click(sender, e);
         }
 
-        private void LoadLogLines(DateTime? fromDate, DateTime? toDate, int Fl_id, string identifier)
+        private void LoadLogLines(DateTime? fromDate, DateTime? toDate, string identifier, string flight, string number, DateTime? flightDate)
         {
             var es = Peleg.NaumTools.Utils.Sql2Entity(SqlConnectionString, "Data.Model");
 
@@ -50,6 +51,7 @@ namespace Flt_FlightProcessingLog
                 }
 
                 var sessionIdQuery = baseQuery;
+                var isSessionIdQuery = false;
 
                 List<Guid?> matchingSessionIds = null;
 
@@ -57,17 +59,39 @@ namespace Flt_FlightProcessingLog
                 if (!string.IsNullOrWhiteSpace(identifier))
                 {
                     sessionIdQuery = sessionIdQuery.Where(l => l.FlightIdentifier == identifier);
+                    isSessionIdQuery = true;
                 }
 
-                // If Fl_id is provided, further filter for messages containing the Fl_id
-                if (Fl_id > 0)
+                if (!string.IsNullOrWhiteSpace(flight) && !string.IsNullOrWhiteSpace(number))
                 {
-                    string Fl_idStr = Fl_id.ToString();
-                    sessionIdQuery = sessionIdQuery.Where(l => l.Message.Contains(Fl_idStr));
+                    string flightStr = ">" + flight + "<";
+                    string numberStr = ">" + number + "<";
+
+                    sessionIdQuery = sessionIdQuery
+                        .AsEnumerable()
+                        .Where(l =>
+                            !string.IsNullOrEmpty(l.SourceXml) &&
+                            l.SourceXml.Contains(flightStr) &&
+                            l.SourceXml.Contains(numberStr))
+                        .AsQueryable();
+
+                    isSessionIdQuery = true;
                 }
 
-                // If either identifier or Fl_id was provided, get matching SessionIds
-                if (!string.IsNullOrWhiteSpace(identifier) || Fl_id > 0)
+                if (flightDate.HasValue)
+                {
+                    string dateStr = ">" + flightDate.Value.ToString("yyyyMMdd") + "<";
+                    sessionIdQuery = sessionIdQuery
+                        .AsEnumerable()
+                        .Where(l =>
+                            !string.IsNullOrEmpty(l.SourceXml) &&
+                            l.SourceXml.Contains(dateStr))
+                        .AsQueryable();
+
+                    isSessionIdQuery = true;
+                }
+
+                if (isSessionIdQuery)
                 {
                     matchingSessionIds = sessionIdQuery
                         .Select(l => l.SessionId)
@@ -114,9 +138,9 @@ namespace Flt_FlightProcessingLog
         {
             DateTime? fromDate = udtFrom.Value as DateTime?;
             DateTime? toDate = udtTo.Value as DateTime?;
-            int FlId = txtFlId.Text.Length > 0 ? int.Parse(txtFlId.Text) : 0;
+            DateTime? flightDate = udtFlightDate.Value as DateTime?;
             string identifier = txtIdentifier.Text;
-            LoadLogLines(fromDate, toDate, FlId, identifier);
+            LoadLogLines(fromDate, toDate, identifier,txtFlt.Text,txtNumber.Text, flightDate);
         }
 
         private void egLogLines_InitializeLayout(object sender, Infragistics.Win.UltraWinGrid.InitializeLayoutEventArgs e)
