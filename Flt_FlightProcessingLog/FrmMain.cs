@@ -113,7 +113,8 @@ namespace Flt_FlightProcessingLog
                 {
                     // Get session IDs that have at least one "ERROR" step
                     var errorSessionIds = baseQuery
-                        .Where(l => l.Step == "ERROR")
+                        .Where(l => l.MessageType != null &&
+                            l.MessageType.ToLower().Contains("error"))
                         .Select(l => l.SessionId)
                         .Distinct()
                         .ToList();
@@ -328,12 +329,14 @@ namespace Flt_FlightProcessingLog
 
         private void egLogLines_InitializeRow(object sender, InitializeRowEventArgs e)
         {
-            if (e.Row.Cells["Step"].Value != null)
+            if (e.Row.Cells["MessageType"].Value != null)
             {
-                if (e.Row.Cells["Step"].Value.ToString() == "ERROR")
+                var msgType = e.Row.Cells["MessageType"].Value.ToString();
+
+                if (msgType.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     e.Row.Appearance.BackColor = System.Drawing.Color.LightCoral;
-                    //e.Row.Appearance.ForeColor = System.Drawing.Color.White; // Change text color if needed
+                    // e.Row.Appearance.ForeColor = System.Drawing.Color.White; // optional
                 }
             }
         }
