@@ -27,7 +27,7 @@ namespace Flt_FlightProcessingLog
             btnSearch_Click(sender, e);
         }
 
-        private void LoadLogLines(DateTime? fromDate, DateTime? toDate, string identifier, string flight, string number, DateTime? flightDate)
+        private void LoadLogLines(DateTime? fromDate, DateTime? toDate, string identifier, string flight, string number, DateTime? flightDate, bool isErrorOnly)
         {
             var es = Peleg.NaumTools.Utils.Sql2Entity(SqlConnectionString, "Data.Model");
 
@@ -64,15 +64,15 @@ namespace Flt_FlightProcessingLog
 
                 if (!string.IsNullOrWhiteSpace(flight) && !string.IsNullOrWhiteSpace(number))
                 {
-                    string flightStr = ">" + flight + "<";
-                    string numberStr = ">" + number + "<";
+                    string flightStr = ">" + flight.ToLower() + "<";
+                    string numberStr = ">" + number.ToLower() + "<";
 
                     sessionIdQuery = sessionIdQuery
                         .AsEnumerable()
                         .Where(l =>
                             !string.IsNullOrEmpty(l.SourceXml) &&
-                            l.SourceXml.Contains(flightStr) &&
-                            l.SourceXml.Contains(numberStr))
+                            l.SourceXml.ToLower().Contains(flightStr) &&
+                            l.SourceXml.ToLower().Contains(numberStr))
                         .AsQueryable();
 
                     isSessionIdQuery = true;
@@ -109,6 +109,26 @@ namespace Flt_FlightProcessingLog
                     baseQuery = baseQuery.Where(l => matchingSessionIds.Contains(l.SessionId));
                 }
 
+                if (isErrorOnly)
+                {
+                    // Get session IDs that have at least one "ERROR" step
+                    var errorSessionIds = baseQuery
+                        .Where(l => l.Step == "ERROR")
+                        .Select(l => l.SessionId)
+                        .Distinct()
+                        .ToList();
+
+                    // If there are no error sessions, return empty
+                    if (!errorSessionIds.Any())
+                    {
+                        egLogLines.DataSource = new List<FlightProcessingLog>();
+                        return;
+                    }
+
+                    // Keep only logs from sessions with errors
+                    baseQuery = baseQuery.Where(l => errorSessionIds.Contains(l.SessionId));
+                }
+
                 // Final ordering
                 var logLines = baseQuery
                     .OrderBy(l => l.Id)
@@ -120,10 +140,58 @@ namespace Flt_FlightProcessingLog
                     .SelectMany(g =>
                     {
                         int minId = g.Min(x => x.Id);
+
+                        // Try to find the START line
+                        var startLine = g.FirstOrDefault(x => x.Step == "START" && !string.IsNullOrEmpty(x.SourceXml));
+                        string flightDisplay = null;
+
+                        if (startLine != null)
+                        {
+                            try
+                            {
+                                var xml = System.Xml.Linq.XDocument.Parse(startLine.SourceXml);
+                                var airline = xml.Descendants("Airline").FirstOrDefault()?.Value?.Trim();
+                                var fltNum = xml.Descendants("Flt_Num").FirstOrDefault()?.Value?.Trim();
+                                var fromDateStr = xml.Descendants("From_Date").FirstOrDefault()?.Value?.Trim();
+
+                                string formattedDate = null;
+                                DateTime fromDateDisplay;
+
+                                // Try to parse as standard date
+                                if (DateTime.TryParse(fromDateStr, out fromDateDisplay) ||
+                                    DateTime.TryParseExact(fromDateStr, "yyyyMMdd",
+                                        System.Globalization.CultureInfo.InvariantCulture,
+                                        System.Globalization.DateTimeStyles.None, out fromDateDisplay))
+                                {
+                                    formattedDate = fromDateDisplay.ToString("dd/MM/yyyy");
+                                }
+                                else
+                                {
+                                    // Parsing failed, use the raw string
+                                    formattedDate = fromDateStr;
+                                }
+
+                                // Combine values nicely
+                                if (!string.IsNullOrEmpty(airline) || !string.IsNullOrEmpty(fltNum))
+                                    flightDisplay = $"{airline} {fltNum}".Trim();
+
+                                if (!string.IsNullOrEmpty(formattedDate))
+                                    flightDisplay = string.IsNullOrEmpty(flightDisplay)
+                                        ? formattedDate
+                                        : $"{flightDisplay} — {formattedDate}";
+                            }
+                            catch
+                            {
+                                // ignore XML parsing errors
+                            }
+                        }
+
                         foreach (var log in g)
                         {
                             log.MinIdForSession = minId;
+                            log.FlightDisplayName = flightDisplay; // <-- add this property dynamically or extend your entity
                         }
+
                         return g;
                     })
                     .ToList();
@@ -140,7 +208,8 @@ namespace Flt_FlightProcessingLog
             DateTime? toDate = udtTo.Value as DateTime?;
             DateTime? flightDate = udtFlightDate.Value as DateTime?;
             string identifier = txtIdentifier.Text;
-            LoadLogLines(fromDate, toDate, identifier,txtFlt.Text,txtNumber.Text, flightDate);
+            bool isErrorOnly = chkError.Checked;
+            LoadLogLines(fromDate, toDate, identifier,txtFlt.Text,txtNumber.Text, flightDate, isErrorOnly);
         }
 
         private void egLogLines_InitializeLayout(object sender, Infragistics.Win.UltraWinGrid.InitializeLayoutEventArgs e)
@@ -224,7 +293,7 @@ namespace Flt_FlightProcessingLog
             if (chkGroupBySession.Checked)
             {
                 // Group by SessionId
-                band.SortedColumns.Add("MinIdForSession", false, true);
+                band.SortedColumns.Add("MinIdForSession", true, true);
 
                 // Sort rows inside each group by Id
                 band.SortedColumns.Add("Id", false, false);
@@ -245,13 +314,26 @@ namespace Flt_FlightProcessingLog
 
         private void egLogLines_InitializeGroupByRow(object sender, InitializeGroupByRowEventArgs e)
         {
-            if (e.Row.Column.Key == "MinIdForSession")
+            // Get first row in the group
+            var firstRow = e.Row.Rows.FirstOrDefault();
+            if (firstRow != null)
             {
-                // Get one log row from the group
-                var log = e.Row.Rows.OfType<UltraGridRow>().FirstOrDefault()?.ListObject as FlightProcessingLog;
-                if (log != null)
+                var flightDisplay = firstRow.Cells["FlightDisplayName"].Value as string;
+                if (!string.IsNullOrEmpty(flightDisplay))
+                    e.Row.Description = flightDisplay;  // This is the header text
+                else
+                    e.Row.Description = "Unknown Flight";
+            }
+        }
+
+        private void egLogLines_InitializeRow(object sender, InitializeRowEventArgs e)
+        {
+            if (e.Row.Cells["Step"].Value != null)
+            {
+                if (e.Row.Cells["Step"].Value.ToString() == "ERROR")
                 {
-                    e.Row.Description = $"Session: {log.SessionId} {log.Timestamp}";
+                    e.Row.Appearance.BackColor = System.Drawing.Color.LightCoral;
+                    //e.Row.Appearance.ForeColor = System.Drawing.Color.White; // Change text color if needed
                 }
             }
         }

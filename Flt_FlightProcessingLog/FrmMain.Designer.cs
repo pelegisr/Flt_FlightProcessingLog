@@ -44,6 +44,14 @@
             this.uPanel1 = new Peleg.UPanelInfo.UPanel();
             this.egLogLines = new Peleg.CustomControls.ExtendedGrid(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkError = new System.Windows.Forms.CheckBox();
+            this.txtNumber = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtFlt = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.udtFlightDate = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lblTo = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.udtFrom = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
             this.udtTo = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
@@ -51,18 +59,11 @@
             this.btnSearch = new System.Windows.Forms.Button();
             this.lblIdentifier = new System.Windows.Forms.Label();
             this.txtIdentifier = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.udtFlightDate = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtFlt = new System.Windows.Forms.TextBox();
-            this.lblTo = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtNumber = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.egLogLines)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtFrom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtTo)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).BeginInit();
             this.SuspendLayout();
             // 
             // uPanel1
@@ -127,7 +128,7 @@
             this.egLogLines.DisplayLayout.Override.GroupByRowAppearance = appearance9;
             appearance10.TextHAlignAsString = "Left";
             this.egLogLines.DisplayLayout.Override.HeaderAppearance = appearance10;
-            this.egLogLines.DisplayLayout.Override.HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction.SortMulti;
+            this.egLogLines.DisplayLayout.Override.HeaderClickAction = Infragistics.Win.UltraWinGrid.HeaderClickAction.Select;
             this.egLogLines.DisplayLayout.Override.HeaderStyle = Infragistics.Win.HeaderStyle.WindowsXPCommand;
             appearance11.BackColor = System.Drawing.SystemColors.Window;
             appearance11.BorderColor = System.Drawing.Color.Silver;
@@ -148,14 +149,16 @@
             this.egLogLines.PrimeryFilter = null;
             this.egLogLines.SearchMode = Peleg.CustomControls.ExtendedGrid.SearchModeEnum.OnPatternChange;
             this.egLogLines.SearchStyle = Peleg.CustomControls.ExtendedGrid.SearchStyleEnum.AllWord;
-            this.egLogLines.Size = new System.Drawing.Size(800, 415);
+            this.egLogLines.Size = new System.Drawing.Size(943, 415);
             this.egLogLines.TabIndex = 1;
             this.egLogLines.Text = "egLogLines";
             this.egLogLines.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.egLogLines_InitializeLayout);
+            this.egLogLines.InitializeRow += new Infragistics.Win.UltraWinGrid.InitializeRowEventHandler(this.egLogLines_InitializeRow);
             this.egLogLines.InitializeGroupByRow += new Infragistics.Win.UltraWinGrid.InitializeGroupByRowEventHandler(this.egLogLines_InitializeGroupByRow);
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.chkError);
             this.panel1.Controls.Add(this.txtNumber);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.txtFlt);
@@ -173,8 +176,79 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 52);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 51);
+            this.panel1.Size = new System.Drawing.Size(943, 51);
             this.panel1.TabIndex = 2;
+            // 
+            // chkError
+            // 
+            this.chkError.AutoSize = true;
+            this.chkError.Checked = true;
+            this.chkError.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkError.Location = new System.Drawing.Point(486, 25);
+            this.chkError.Name = "chkError";
+            this.chkError.Size = new System.Drawing.Size(118, 17);
+            this.chkError.TabIndex = 16;
+            this.chkError.Text = "Display failures only";
+            this.chkError.UseVisualStyleBackColor = true;
+            // 
+            // txtNumber
+            // 
+            this.txtNumber.Location = new System.Drawing.Point(333, 23);
+            this.txtNumber.Name = "txtNumber";
+            this.txtNumber.Size = new System.Drawing.Size(40, 20);
+            this.txtNumber.TabIndex = 5;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(330, 6);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(44, 13);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "Number";
+            // 
+            // txtFlt
+            // 
+            this.txtFlt.Location = new System.Drawing.Point(287, 23);
+            this.txtFlt.Name = "txtFlt";
+            this.txtFlt.Size = new System.Drawing.Size(40, 20);
+            this.txtFlt.TabIndex = 4;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(284, 6);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(32, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Flight";
+            // 
+            // udtFlightDate
+            // 
+            this.udtFlightDate.DateTime = new System.DateTime(2025, 10, 23, 0, 0, 0, 0);
+            this.udtFlightDate.Location = new System.Drawing.Point(197, 22);
+            this.udtFlightDate.Name = "udtFlightDate";
+            this.udtFlightDate.Size = new System.Drawing.Size(77, 21);
+            this.udtFlightDate.TabIndex = 3;
+            this.udtFlightDate.Value = new System.DateTime(2025, 10, 23, 0, 0, 0, 0);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(194, 6);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(58, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Flight Date";
+            // 
+            // lblTo
+            // 
+            this.lblTo.AutoSize = true;
+            this.lblTo.Location = new System.Drawing.Point(92, 26);
+            this.lblTo.Name = "lblTo";
+            this.lblTo.Size = new System.Drawing.Size(10, 13);
+            this.lblTo.TabIndex = 10;
+            this.lblTo.Text = "-";
             // 
             // label1
             // 
@@ -187,23 +261,29 @@
             // 
             // udtFrom
             // 
+            this.udtFrom.DateTime = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
             this.udtFrom.Location = new System.Drawing.Point(12, 22);
             this.udtFrom.Name = "udtFrom";
             this.udtFrom.Size = new System.Drawing.Size(77, 21);
             this.udtFrom.TabIndex = 1;
+            this.udtFrom.Value = null;
             this.udtFrom.KeyDown += new System.Windows.Forms.KeyEventHandler(this.udtFrom_KeyDown);
             // 
             // udtTo
             // 
+            this.udtTo.DateTime = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
             this.udtTo.Location = new System.Drawing.Point(105, 22);
             this.udtTo.Name = "udtTo";
             this.udtTo.Size = new System.Drawing.Size(71, 21);
             this.udtTo.TabIndex = 2;
+            this.udtTo.Value = null;
             // 
             // chkGroupBySession
             // 
             this.chkGroupBySession.AutoSize = true;
-            this.chkGroupBySession.Location = new System.Drawing.Point(678, 23);
+            this.chkGroupBySession.Checked = true;
+            this.chkGroupBySession.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkGroupBySession.Location = new System.Drawing.Point(821, 25);
             this.chkGroupBySession.Name = "chkGroupBySession";
             this.chkGroupBySession.Size = new System.Drawing.Size(110, 17);
             this.chkGroupBySession.TabIndex = 8;
@@ -213,7 +293,7 @@
             // 
             // btnSearch
             // 
-            this.btnSearch.Location = new System.Drawing.Point(581, 21);
+            this.btnSearch.Location = new System.Drawing.Point(610, 23);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(88, 22);
             this.btnSearch.TabIndex = 7;
@@ -224,7 +304,7 @@
             // lblIdentifier
             // 
             this.lblIdentifier.AutoSize = true;
-            this.lblIdentifier.Location = new System.Drawing.Point(460, 6);
+            this.lblIdentifier.Location = new System.Drawing.Point(389, 6);
             this.lblIdentifier.Name = "lblIdentifier";
             this.lblIdentifier.Size = new System.Drawing.Size(47, 13);
             this.lblIdentifier.TabIndex = 4;
@@ -232,74 +312,17 @@
             // 
             // txtIdentifier
             // 
-            this.txtIdentifier.Location = new System.Drawing.Point(463, 23);
+            this.txtIdentifier.Location = new System.Drawing.Point(392, 23);
             this.txtIdentifier.Name = "txtIdentifier";
             this.txtIdentifier.Size = new System.Drawing.Size(88, 20);
             this.txtIdentifier.TabIndex = 6;
             this.txtIdentifier.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtIdentifier_KeyDown);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(216, 6);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(58, 13);
-            this.label2.TabIndex = 11;
-            this.label2.Text = "Flight Date";
-            // 
-            // udtFlightDate
-            // 
-            this.udtFlightDate.Location = new System.Drawing.Point(219, 22);
-            this.udtFlightDate.Name = "udtFlightDate";
-            this.udtFlightDate.Size = new System.Drawing.Size(77, 21);
-            this.udtFlightDate.TabIndex = 3;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(331, 6);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(32, 13);
-            this.label3.TabIndex = 13;
-            this.label3.Text = "Flight";
-            // 
-            // txtFlt
-            // 
-            this.txtFlt.Location = new System.Drawing.Point(334, 23);
-            this.txtFlt.Name = "txtFlt";
-            this.txtFlt.Size = new System.Drawing.Size(40, 20);
-            this.txtFlt.TabIndex = 4;
-            // 
-            // lblTo
-            // 
-            this.lblTo.AutoSize = true;
-            this.lblTo.Location = new System.Drawing.Point(92, 26);
-            this.lblTo.Name = "lblTo";
-            this.lblTo.Size = new System.Drawing.Size(10, 13);
-            this.lblTo.TabIndex = 10;
-            this.lblTo.Text = "-";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(377, 6);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(44, 13);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "Number";
-            // 
-            // txtNumber
-            // 
-            this.txtNumber.Location = new System.Drawing.Point(380, 23);
-            this.txtNumber.Name = "txtNumber";
-            this.txtNumber.Size = new System.Drawing.Size(40, 20);
-            this.txtNumber.TabIndex = 5;
-            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 518);
+            this.ClientSize = new System.Drawing.Size(943, 518);
             this.Controls.Add(this.egLogLines);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.uPanel1);
@@ -309,9 +332,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.egLogLines)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtFrom)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.udtTo)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.udtFlightDate)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -335,6 +358,7 @@
         private System.Windows.Forms.Label lblTo;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtNumber;
+        private System.Windows.Forms.CheckBox chkError;
     }
 }
 

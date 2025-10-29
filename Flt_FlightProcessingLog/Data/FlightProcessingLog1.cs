@@ -9,5 +9,6 @@ namespace Peleg.Flt_FlightProcessingLog.Data
     public partial class FlightProcessingLog
     {
         public int MinIdForSession { get; set; } // temp field for sorting groups
+        public string FlightDisplayName { get; set; }
     }
 }
