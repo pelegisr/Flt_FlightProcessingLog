@@ -153,6 +153,7 @@ namespace Flt_FlightProcessingLog
                                 var xml = System.Xml.Linq.XDocument.Parse(startLine.SourceXml);
                                 var airline = xml.Descendants("Airline").FirstOrDefault()?.Value?.Trim();
                                 var fltNum = xml.Descendants("Flt_Num").FirstOrDefault()?.Value?.Trim();
+                                var dest = xml.Descendants("To_Dest").FirstOrDefault()?.Value?.Trim();
                                 var fromDateStr = xml.Descendants("From_Date").FirstOrDefault()?.Value?.Trim();
 
                                 string formattedDate = null;
@@ -174,7 +175,7 @@ namespace Flt_FlightProcessingLog
 
                                 // Combine values nicely
                                 if (!string.IsNullOrEmpty(airline) || !string.IsNullOrEmpty(fltNum))
-                                    flightDisplay = $"{airline} {fltNum}".Trim();
+                                    flightDisplay = $"{airline} {fltNum} to {dest}".Trim();
 
                                 if (!string.IsNullOrEmpty(formattedDate))
                                     flightDisplay = string.IsNullOrEmpty(flightDisplay)
